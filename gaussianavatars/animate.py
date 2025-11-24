@@ -56,6 +56,7 @@ def frames_to_video(
     frame_dir,
     output_path,
     fps,
+    audio_path=None,  # 추가: 오디오 파일 경로
 ):
     cmd = [
         "ffmpeg",
@@ -64,13 +65,30 @@ def frames_to_video(
         "-f", "image2",
         "-pattern_type", "glob",
         "-i", f"{frame_dir}/*.png",
+    ]
+
+    # 오디오 입력이 있으면 추가
+    if audio_path is not None:
+        cmd += ["-i", audio_path]
+
+    # 비디오 품질 옵션
+    cmd += [
         "-crf", "18",
         "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
         "-pix_fmt", "yuv420p",
-        f"{output_path}"
     ]
 
-    # Run the command with real-time output
+    # 오디오 인코딩 옵션 (있을 때만)
+    if audio_path is not None:
+        cmd += [
+            "-c:a", "aac",     # 오디오 코덱 (ffmpeg 기본 호환)
+            "-b:a", "192k",    # 비트레이트
+            "-shortest",       # 비디오/오디오 중 짧은 길이에 맞춰서 종료
+        ]
+
+    cmd += [output_path]
+
+    # 실행
     subprocess.run(cmd, check=True)
 
 
@@ -174,7 +192,7 @@ def render_sequence(args):
         if "fps" in camera_trajectory:
             fps = camera_trajectory["fps"]
 
-    frames_to_video(render_path, output_path / "renders.mp4", fps=fps)
+    frames_to_video(render_path, output_path / "renders.mp4", fps=fps, audio_path=args.audio_path)
 
 
 if __name__ == "__main__":
@@ -193,6 +211,7 @@ if __name__ == "__main__":
     parser.add_argument('--output_path', type=str, required=True,
                         help="Path to directory where the animation outputs " \
                         "(frames, video and optionally ply) will be saved.")
+    parser.add_argument('--audio_path', type=str, default=None)
     parser.add_argument("--iteration", default=-1, type=int)
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--render_alpha", type=int, default=False)
