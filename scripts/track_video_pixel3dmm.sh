@@ -60,7 +60,7 @@ if [ -f "$INPUT_VIDEO_PATH" ]; then
   IS_DISCONTINOUS=False
 fi
 
-mkdir $OUTPUT_PATH
+mkdir -p $OUTPUT_PATH
 
 echo "Running Pixel3DMM script"
 
