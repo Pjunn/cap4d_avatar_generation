@@ -1,6 +1,6 @@
-numpy
-torch
-torchvision
+# numpy
+# torch
+# torchvision
 omegaconf
 pytorch-lightning
 einops

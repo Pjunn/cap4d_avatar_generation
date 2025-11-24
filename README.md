@@ -27,6 +27,8 @@ conda create --name cap4d_env python=3.10
 conda activate cap4d_env
 
 # 3. Install requirements
+pip install torch==2.9.0 torchvision==0.24.0 torchaudio==2.9.0 --index-url https://download.pytorch.org/whl/cu126
+pip install chumpy --no-build-isolation
 pip install -r requirements.txt
 
 # 4. Set python path
@@ -36,7 +38,7 @@ Follow the [instructions](https://github.com/facebookresearch/pytorch3d/blob/mai
 
 ```bash
 export FORCE_CUDA=1
-pip install "git+https://github.com/facebookresearch/pytorch3d.git@stable"
+pip install --no-build-isolation git+https://github.com/facebookresearch/pytorch3d.git@stable
 ```
 
 ### 📦 2. Download FLAME and MMDM weights
@@ -106,7 +108,7 @@ export FLAME_PWD=your_flame_password
 export PIXEL3DMM_PATH=$(realpath "../PATH/TO/pixel3dmm")  # set this to where you would like to clone the Pixel3DMM repo (absolute path)
 export CAP4D_PATH=$(realpath "./")  # set this to the cap4d directory (absolute path)
 
-bash scripts/install_pixel3Dmm.sh
+bash scripts/install_pixel3dmm.sh
 ```
 
 Run tracking and conversion on reference images/videos using the provided script. Note: If input is a directory of frames, it is assumed to be discontinous set of (monocular!) images. If input is a file, it will assume that it is a continous monocular video.

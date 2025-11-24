@@ -17,6 +17,7 @@ fi
 
 # install Pixel3DMM while making it compatible with the environment of CAP4D
 
+pip install gdown
 # install L2CS
 pip install git+https://github.com/edavalosanaya/L2CS-Net.git@main
 mkdir data/weights/l2cs/
@@ -37,7 +38,7 @@ pip install git+https://github.com/NVlabs/nvdiffrast.git
 grep -v '^numpy' requirements.txt | pip install -r /dev/stdin
 
 # install missing packages
-pip install gdown Cython trimesh
+pip install Cython trimesh
 pip install insightface==0.7.3
 
 # from pixel3dmm/.install_preprocessing_pipeline.sh
@@ -95,3 +96,5 @@ gdown --id 1KYYlpN-KGrYMVcAOT22NkVQC0UAfycMD -O ./normals.ckpt
 
 cd $PIXEL3DMM_PATH
 pip install -e .
+
+pip install face-alignment==1.3.4
