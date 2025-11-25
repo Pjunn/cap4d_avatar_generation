@@ -56,7 +56,7 @@ class FlameFittingModel(nn.Module):
         self.n_timesteps = n_timesteps
 
         self.flame = flame
-
+        self.flame = torch.compile(self.flame, mode="reduce-overhead")
         # initialize flame sequence parameters
         self.shape = nn.Parameter(torch.zeros(n_shape_params))
         self.expr = nn.Parameter(torch.zeros(n_timesteps, n_expr_params))
@@ -137,7 +137,7 @@ class FlameFittingModel(nn.Module):
             lr=init_lr, params=self.parameters(), betas=(0.96, 0.999), 
         )
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            opt, patience=100, factor=0.5
+            opt, patience=25, factor=0.5
         )
 
         if verbose:
@@ -274,7 +274,7 @@ def fit_flame(
     if smooth_eye_rotations:
         fitter.eye_rot.data = torch.from_numpy(gaussian_filter1d(
             fitter.eye_rot.data.cpu().numpy(), sigma=2, axis=0
-        )).float()
+        )).float().to(device)
 
     # rerun flame
     pred_verts_3d = fitter.forward()["verts_3d"]
@@ -373,7 +373,7 @@ def main(args):
         n_shape_params=150, # 그대로
         n_expr_params=65, # 그대로
         device=args.device, # 그대로
-        n_steps=8000, # 그대로
+        n_steps=args.step, # 8000, # 그대로
         w_shape_reg=1e-4, # 6 # 그대로
         w_expr_reg=1e-4, # 6 # 그대로
         smooth_eye_rotations=True #is_video, # 그대로
@@ -547,6 +547,12 @@ if __name__ == "__main__":
         "--device",
         type=str,
         default="cuda",
+        help="device",
+    )
+    parser.add_argument(
+        "--step",
+        type=int,
+        default=4000,
         help="device",
     )
     args = parser.parse_args()
