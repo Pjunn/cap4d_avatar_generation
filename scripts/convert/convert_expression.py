@@ -22,9 +22,9 @@ from cap4d.datasets.utils import pivot_camera_intrinsic
 
 
 
-ORBIT_PERIOD = 8  # orbit period in seconds
-ORBIT_AMPLITUDE_YAW = 55  # yaw angle amplitude for orbit
-ORBIT_AMPLITUDE_PITCH = 20  # pitch angle amplitude for orbit
+ORBIT_PERIOD = 4 #8  # orbit period in seconds
+ORBIT_AMPLITUDE_YAW = 15 #30 #55  # yaw angle amplitude for orbit
+ORBIT_AMPLITUDE_PITCH = 5 #20  # pitch angle amplitude for orbit
 MAX_EYE_ROTATION = 25  # maximum eyeball rotation angle in degrees
 
 
@@ -118,7 +118,7 @@ class FlameFittingModel(nn.Module):
     def fit(
         self,
         verts_3d: torch.Tensor,
-        init_lr: float = 1e-2,
+        init_lr: float = 0.01, #0.05, #1e-2, #TODO
         n_steps: int = 6000,
         w_shape_reg: float = 1e-2,
         w_expr_reg: float = 1e-2,
@@ -137,7 +137,7 @@ class FlameFittingModel(nn.Module):
             lr=init_lr, params=self.parameters(), betas=(0.96, 0.999), 
         )
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            opt, patience=25, factor=0.5
+            opt, patience=25, factor=0.5 # TODO
         )
 
         if verbose:
@@ -383,11 +383,11 @@ def main(args):
     converted_mesh_dir = output_path / "flowface_mesh"
     converted_mesh_dir.mkdir(exist_ok=True)
 
-    for frame_id in range(verts_3d.shape[0]):
+    # for frame_id in range(verts_3d.shape[0]):
 
-        trimesh.Trimesh(
-            pred_verts_3d[frame_id], faces=template_faces
-        ).export(converted_mesh_dir / f"{frame_id:05d}.ply")
+    #     trimesh.Trimesh(
+    #         pred_verts_3d[frame_id], faces=template_faces
+    #     ).export(converted_mesh_dir / f"{frame_id:05d}.ply")
     
     def axis_angle_to_matrix_batch(axis_angle):
         """

@@ -132,7 +132,7 @@ def render_sequence(args):
         render_depth_path = output_path / "renders_depth"
         makedirs(render_depth_path, exist_ok=True)
     if args.export_ply:
-        ply_writer = PlyWriter(compress=args.compress_ply)
+        ply_writer = PlyWriter(compress=args.compress_ply, randomize=args.randomize)
 
     makedirs(render_path, exist_ok=True)
 
@@ -220,7 +220,7 @@ if __name__ == "__main__":
                         help="save baked ply animation for web rendering")
     parser.add_argument("--compress_ply", type=int, default=False, 
                         help="compress baked ply animation at the cost of quality (jittering)")
-
+    parser.add_argument("--randomize", type=int, default=True)
     args = parser.parse_args()
     print("Rendering " + args.model_path)
 

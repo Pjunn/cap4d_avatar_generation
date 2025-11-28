@@ -13,7 +13,7 @@ def compute_face_xyz_transformed(xyz, binding, face_center, face_orien_mat, face
 
 
 class PlyWriter:
-    def __init__(self, compress=False):
+    def __init__(self, compress=False, randomize=False):
         self.faces = None
         self.init_vertices = None
         self.vert_list = []
@@ -22,6 +22,7 @@ class PlyWriter:
         self.gaussian_attributes = None
 
         self.compress = compress
+        self.randomize = randomize
 
     def update(self, gaussians):
         verts = gaussians.verts[0].cpu().numpy()
@@ -29,15 +30,53 @@ class PlyWriter:
         if self.faces is None:
             self.faces = gaussians.faces.cpu().numpy()
             self.init_vertices = verts
-            self.gaussian_attributes = {
-                "xyz": gaussians._xyz.detach().cpu().numpy(),
-                "f_dc": gaussians._features_dc.cpu().numpy(),
-                "f_rest": gaussians._features_rest.cpu().numpy(),
-                "opacities": gaussians._opacity.detach().cpu().numpy(),
-                "scale": gaussians._scaling.detach().cpu().numpy(),
-                "rotation": gaussians._rotation.detach().cpu().numpy(),
-                "binding": gaussians.binding.detach().cpu().numpy(),
-            }
+
+            
+            # TODO 각각의 가우시안의 색을 랜덤한 단색으로 투명도 작게 테두리 있는것 처럼 만들기. 
+
+            if self.randomize:
+
+
+                f_dc_rand = torch.rand_like(gaussians._features_dc)
+
+                palette = torch.tensor([
+                    [1.0, 0.0, 0.0],   # Red
+                    [0.0, 1.0, 0.0],   # Green
+                    [0.0, 0.0, 1.0],   # Blue
+                    [1.0, 1.0, 0.0],   # Yellow
+                    [1.0, 0.0, 1.0],   # Magenta
+                    [0.0, 1.0, 1.0],   # Cyan
+                ], device=gaussians._features_dc.device)
+
+                N = gaussians._features_dc.shape[0]
+                idx = torch.randint(0, len(palette), (N,), device=palette.device)
+                f_dc_rand = palette[idx].unsqueeze(1)
+                # import code; code.interact(local=locals())
+
+                f_rest_rand = torch.zeros_like(gaussians._features_rest)
+                
+                f_opacity_rand = torch.ones_like(gaussians._opacity)
+
+                self.gaussian_attributes = {
+                    "xyz": gaussians._xyz.detach().cpu().numpy(),
+                    "f_dc": f_dc_rand.cpu().numpy(),
+                    "f_rest": f_rest_rand.cpu().numpy(),
+                    "opacities": f_opacity_rand.detach().cpu().numpy(),
+                    "scale": gaussians._scaling.detach().cpu().numpy(),
+                    "rotation": gaussians._rotation.detach().cpu().numpy(),
+                    "binding": gaussians.binding.detach().cpu().numpy(),
+                }
+            else:
+                self.gaussian_attributes = {
+                    "xyz": gaussians._xyz.detach().cpu().numpy(),
+                    "f_dc": gaussians._features_dc.cpu().numpy(),
+                    "f_rest": gaussians._features_rest.cpu().numpy(),
+                    "opacities": gaussians._opacity.detach().cpu().numpy(),
+                    "scale": gaussians._scaling.detach().cpu().numpy(),
+                    "rotation": gaussians._rotation.detach().cpu().numpy(),
+                    "binding": gaussians.binding.detach().cpu().numpy(),
+                }
+            
 
         self.vert_list.append(verts)
 

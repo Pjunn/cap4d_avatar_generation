@@ -32,13 +32,14 @@ def convert(payload: dict):
         subprocess.run(["python", "gaussianavatars/animate.py",
                         "--model_path", f"examples/output/{avatar_id}/avatar/",
                         "--target_animation_path", f"{output_path}/{save_name}/fit.npz",
-                        "--target_cam_trajectory_path", f"{output_path}/{save_name}/cam_static.npz",
+                        "--target_cam_trajectory_path", f"{output_path}/{save_name}/cam_orbit.npz",
                         "--output_path", output_path,
                         "--audio_path", audio_path],
                         env=env) 
         
 
         shutil.copy(os.path.join(tmpdir, "renders.mp4"), save_path)
+        shutil.copy(os.path.join(tmpdir, "exported_animation.ply"), save_path)
 
     
     video_path = os.path.join(save_path, "renders.mp4")
